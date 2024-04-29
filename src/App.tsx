@@ -1,10 +1,10 @@
 import { Button, Code, Container, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import {
+  ConversationsHistoryResponse,
   ConversationsInfoResponse,
-  ConversationsListResponse,
 } from '@slack/web-api'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
@@ -21,9 +21,15 @@ function App() {
     handleRemoveValue,
   } = useAuth()
 
-  const [conversations, setConversations] = useState<
-    ConversationsListResponse | undefined
+  const [conversationsHistory, setConversationsHistory] = useState<
+    ConversationsHistoryResponse | undefined
   >(undefined)
+
+  const filteredConversations = useMemo(() => {
+    return conversationsHistory?.messages
+      ?.filter((message) => message.type === 'message')
+      .filter((message) => message?.text?.includes('スレッド'))
+  }, [conversationsHistory])
 
   const [channelInfo, setChannelInfo] = useState<
     ConversationsInfoResponse | undefined
@@ -43,7 +49,7 @@ function App() {
           console.error(response.error)
         }
 
-        setConversations(response)
+        setConversationsHistory(response)
       } catch (error) {
         console.error(error)
       }
@@ -135,8 +141,10 @@ function App() {
           {channelInfo?.channel?.name}
         </Text>
       </Text>
+      <Text>Messages</Text>
+      <Code block>{JSON.stringify(filteredConversations, undefined, 2)}</Code>
       <Text>Conversations</Text>
-      <Code block>{JSON.stringify(conversations, undefined, 2)}</Code>
+      <Code block>{JSON.stringify(conversationsHistory, undefined, 2)}</Code>
     </Container>
   )
 }
