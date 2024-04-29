@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "volta": {
+    "node": "20.12.2"
+  },
+  "packageManager": "pnpm@9.0.4",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
