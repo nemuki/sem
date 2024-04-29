@@ -1,4 +1,4 @@
-import { OauthV2AccessResponse } from '@slack/web-api'
+import { OauthV2AccessResponse, UsersProfileGetResponse } from '@slack/web-api'
 import { env } from './env.ts'
 
 const slackApiBaseUrl = 'https://slack.com/api/'
@@ -25,6 +25,20 @@ export async function fetchToken(
   const response = await fetch(`${slackApiBaseUrl}/oauth.v2.access`, {
     method: 'POST',
     body: params,
+  })
+
+  return response.json()
+}
+
+export const fetchUserInfo = async (
+  accessToken: string,
+): Promise<UsersProfileGetResponse> => {
+  const formData = new FormData()
+  formData.append('token', accessToken)
+
+  const response = await fetch(`${slackApiBaseUrl}/users.profile.get`, {
+    method: 'POST',
+    body: formData,
   })
 
   return response.json()

@@ -1,8 +1,13 @@
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
-import { useEffect } from 'react'
-import { fetchToken } from '../slackApi.ts'
+import { UsersProfileGetResponse } from '@slack/web-api'
+import { useEffect, useState } from 'react'
+import { fetchToken, fetchUserInfo } from '../slackApi.ts'
 
 export const useAuth = () => {
+  const [userProfile, setUserProfile] = useState<
+    UsersProfileGetResponse | undefined
+  >(undefined)
+
   const [localStorageSlackOauthToken, setLocalStorageSlackOauthToken] =
     useLocalStorage<{
       accessToken?: string
@@ -85,13 +90,29 @@ export const useAuth = () => {
     }
   }
 
+  const getUserInfo = async () => {
+    if (!localStorageSlackOauthToken.accessToken) {
+      return
+    }
+
+    try {
+      const response = await fetchUserInfo(
+        localStorageSlackOauthToken.accessToken,
+      )
+      setUserProfile(response)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (oauthAuthorizationCode) {
       getAuthorizationToken()
     } else {
       getRefreshToken()
+      getUserInfo()
     }
   }, [])
 
-  return { localStorageSlackOauthToken }
+  return { userProfile }
 }

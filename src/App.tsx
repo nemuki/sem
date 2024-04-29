@@ -1,20 +1,28 @@
 import '@mantine/core/styles.css'
 
-import { Code, MantineProvider } from '@mantine/core'
+import { Button, Code, Container, MantineProvider, Space } from '@mantine/core'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 
 function App() {
-  const { localStorageSlackOauthToken } = useAuth()
+  const { userProfile } = useAuth()
 
   return (
     <MantineProvider>
-      <a href={applicationConstants.slackOAuthAuthorizeUrl}>Slack</a>
-      <Code block>
-        {localStorageSlackOauthToken
-          ? JSON.stringify(localStorageSlackOauthToken, undefined, 2)
-          : 'No access token'}
-      </Code>
+      <Container>
+        <Button
+          component={'a'}
+          href={applicationConstants.slackOAuthAuthorizeUrl}
+        >
+          Login with Slack
+        </Button>
+        <Space />
+        <Code block>
+          {userProfile
+            ? JSON.stringify(userProfile, undefined, 2)
+            : 'No access token'}
+        </Code>
+      </Container>
     </MantineProvider>
   )
 }
