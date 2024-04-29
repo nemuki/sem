@@ -37,8 +37,7 @@ export const useAuth = () => {
 
   const handleLogout = async () => {
     if (!localStorageSlackOauthToken.accessToken) {
-      removeValue()
-      window.location.reload()
+      handleRemoveValue()
       return
     }
 
@@ -57,8 +56,7 @@ export const useAuth = () => {
       return
     }
 
-    removeValue()
-    window.location.reload()
+    handleRemoveValue()
   }
 
   const getAuthorizationToken = async () => {
