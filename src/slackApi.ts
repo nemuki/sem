@@ -1,6 +1,8 @@
 import { OauthV2AccessResponse } from '@slack/web-api'
 import { env } from './env.ts'
 
+const slackApiBaseUrl = 'https://slack.com/api/'
+
 export async function fetchToken(
   grantType: 'authorization_code',
   token: string,
@@ -41,7 +43,7 @@ export async function fetchToken(
       break
   }
 
-  const response = await fetch('https://slack.com/api/oauth.v2.access', {
+  const response = await fetch(`${slackApiBaseUrl}/oauth.v2.access`, {
     method: 'POST',
     body: params,
   })
