@@ -35,15 +35,27 @@ export const useAuth = () => {
     window.location.reload()
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (!localStorageSlackOauthToken.accessToken) {
       removeValue()
       window.location.reload()
       return
     }
 
-    const response = revokeToken(localStorageSlackOauthToken.accessToken)
-    console.info({ response })
+    try {
+      const response = await revokeToken(
+        localStorageSlackOauthToken.accessToken,
+      )
+
+      if (!response.ok) {
+        setError(`トークン削除処理でエラーが発生しました ${response.error}`)
+        return
+      }
+    } catch (error) {
+      setError(`トークン削除処理でエラーが発生しました ${error}`)
+      console.error(error)
+      return
+    }
 
     removeValue()
     window.location.reload()
