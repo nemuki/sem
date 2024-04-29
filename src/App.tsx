@@ -1,9 +1,16 @@
-import { Button, Code, Container, Text } from '@mantine/core'
-import { ConversationsListResponse } from '@slack/web-api'
+import { Button, Code, Container, Text, TextInput } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import {
+  ConversationsInfoResponse,
+  ConversationsListResponse,
+} from '@slack/web-api'
 import { useEffect, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
-import { fetchConversationsHistory } from './slackApi.ts'
+import {
+  fetchConversationsHistory,
+  fetchConversationsInfo,
+} from './slackApi.ts'
 
 function App() {
   const {
@@ -18,12 +25,18 @@ function App() {
     ConversationsListResponse | undefined
   >(undefined)
 
-  const getConversationsHistory = async () => {
+  const [channelInfo, setChannelInfo] = useState<
+    ConversationsInfoResponse | undefined
+  >(undefined)
+
+  const form = useForm<{ channelId: string }>()
+
+  const getConversationsHistory = async (channelId: string) => {
     if (slackOauthToken.accessToken) {
       try {
         const response = await fetchConversationsHistory(
           slackOauthToken.accessToken,
-          '',
+          channelId,
         )
 
         if (!response.ok) {
@@ -37,8 +50,32 @@ function App() {
     }
   }
 
+  const getConversationsInfo = async (channelId: string) => {
+    if (slackOauthToken.accessToken) {
+      try {
+        const response = await fetchConversationsInfo(
+          slackOauthToken.accessToken,
+          channelId,
+        )
+
+        if (!response.ok) {
+          console.error(response.error)
+        }
+
+        setChannelInfo(response)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  const handleSubmit = (values: typeof form.values) => {
+    getConversationsInfo(values.channelId)
+    getConversationsHistory(values.channelId)
+  }
+
   useEffect(() => {
-    getConversationsHistory()
+    getConversationsHistory('')
   }, [])
 
   if (!slackOauthToken || !userProfile) {
@@ -84,7 +121,20 @@ function App() {
         ログアウト
       </Button>
       <Text>User profile</Text>
-      <Code block>{JSON.stringify(userProfile, undefined, 2)}</Code>
+      <Code block>{JSON.stringify(userProfile.profile, undefined, 2)}</Code>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <TextInput
+          label="Channel ID"
+          key={form.key('channelId')}
+          {...form.getInputProps('channelId')}
+        />
+      </form>
+      <Text>
+        チャンネル名:{' '}
+        <Text span fw={700}>
+          {channelInfo?.channel?.name}
+        </Text>
+      </Text>
       <Text>Conversations</Text>
       <Code block>{JSON.stringify(conversations, undefined, 2)}</Code>
     </Container>

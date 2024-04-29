@@ -1,6 +1,7 @@
 import {
   AuthRevokeResponse,
   ConversationsHistoryResponse,
+  ConversationsInfoResponse,
   OauthV2AccessResponse,
   UsersProfileGetResponse,
 } from '@slack/web-api'
@@ -70,6 +71,22 @@ export const fetchConversationsHistory = async (
   formData.append('channel', channelId)
 
   const response = await fetch(`${slackApiBaseUrl}/conversations.history`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  return response.json()
+}
+
+export const fetchConversationsInfo = async (
+  accessToken: string,
+  channelId: string,
+): Promise<ConversationsInfoResponse> => {
+  const formData = new FormData()
+  formData.append('token', accessToken)
+  formData.append('channel', channelId)
+
+  const response = await fetch(`${slackApiBaseUrl}/conversations.info`, {
     method: 'POST',
     body: formData,
   })
