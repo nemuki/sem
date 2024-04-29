@@ -1,3 +1,6 @@
+import '@mantine/core/styles.css'
+
+import { MantineProvider } from '@mantine/core'
 import { OauthV2AccessResponse } from '@slack/web-api'
 import { useEffect, useState } from 'react'
 import { applicationConstants } from './constant.ts'
@@ -27,7 +30,7 @@ function App() {
   }, [])
 
   return (
-    <>
+    <MantineProvider>
       <p>Hi</p>
       <a href={applicationConstants.slackOAuthAuthorizeUrl}>Slack</a>
       <pre>
@@ -37,7 +40,7 @@ function App() {
             : 'No access token'}
         </code>
       </pre>
-    </>
+    </MantineProvider>
   )
 }
 
