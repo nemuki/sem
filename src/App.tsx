@@ -9,8 +9,8 @@ function App() {
   >(undefined)
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const oauthAuthorizationCode = params.get('code')
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    const oauthAuthorizationCode = urlSearchParams.get('code')
 
     if (oauthAuthorizationCode) {
       console.info(oauthAuthorizationCode)
