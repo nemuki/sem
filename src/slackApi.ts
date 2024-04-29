@@ -1,4 +1,8 @@
-import { OauthV2AccessResponse, UsersProfileGetResponse } from '@slack/web-api'
+import {
+  AuthRevokeResponse,
+  OauthV2AccessResponse,
+  UsersProfileGetResponse,
+} from '@slack/web-api'
 import { env } from './env.ts'
 
 const slackApiBaseUrl = 'https://slack.com/api'
@@ -28,6 +32,18 @@ export async function fetchToken(
   })
 
   return response.json()
+}
+
+export const revokeToken = async (
+  accessToken: string,
+): Promise<AuthRevokeResponse> => {
+  const formData = new FormData()
+  formData.append('token', accessToken)
+
+  return fetch(`${slackApiBaseUrl}/auth.revoke`, {
+    method: 'POST',
+    body: formData,
+  })
 }
 
 export const fetchUserInfo = async (

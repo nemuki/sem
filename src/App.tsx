@@ -1,14 +1,18 @@
-import '@mantine/core/styles.css'
-
-import { Button, Code, Container, MantineProvider, Space } from '@mantine/core'
+import { Button, Code, Container, Text } from '@mantine/core'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 
 function App() {
-  const { userProfile } = useAuth()
+  const {
+    slackOauthToken,
+    userProfile,
+    error,
+    handleLogout,
+    handleRemoveValue,
+  } = useAuth()
 
-  return (
-    <MantineProvider>
+  if (!slackOauthToken || !userProfile) {
+    return (
       <Container>
         <Button
           component={'a'}
@@ -16,14 +20,40 @@ function App() {
         >
           Login with Slack
         </Button>
-        <Space />
-        <Code block>
-          {userProfile
-            ? JSON.stringify(userProfile, undefined, 2)
-            : 'No access token'}
-        </Code>
+        <Code block>Not logged in</Code>
       </Container>
-    </MantineProvider>
+    )
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Button
+          onClick={() => {
+            handleRemoveValue()
+          }}
+        >
+          ログイン情報を削除
+        </Button>
+        <Text c={'red'} fw={500}>
+          {error}
+        </Text>
+      </Container>
+    )
+  }
+
+  return (
+    <Container>
+      <Button
+        onClick={() => {
+          handleLogout()
+        }}
+      >
+        ログアウト
+      </Button>
+      <Text>{userProfile.profile?.real_name} でログイン中</Text>
+      <Code block>{JSON.stringify(userProfile, undefined, 2)}</Code>
+    </Container>
   )
 }
 
