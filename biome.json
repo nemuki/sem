@@ -1,5 +1,35 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.7.1/schema.json",
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 80,
+		"attributePosition": "auto",
+		"ignore": [
+			"**/logs",
+			"**/*.log",
+			"**/npm-debug.log*",
+			"**/yarn-debug.log*",
+			"**/yarn-error.log*",
+			"**/pnpm-debug.log*",
+			"**/lerna-debug.log*",
+			"**/node_modules",
+			"**/dist",
+			"**/dist-ssr",
+			"**/*.local",
+			".vscode/*",
+			"**/.idea",
+			"**/.DS_Store",
+			"**/*.suo",
+			"**/*.ntvs*",
+			"**/*.njsproj",
+			"**/*.sln",
+			"**/*.sw?"
+		]
+	},
 	"organizeImports": { "enabled": true },
 	"linter": {
 		"enabled": true,
@@ -71,6 +101,19 @@
 			}
 		},
 		"ignore": ["dist", ".eslintrc.cjs"]
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingComma": "all",
+			"semicolons": "asNeeded",
+			"arrowParentheses": "always",
+			"bracketSpacing": true,
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto"
+		}
 	},
 	"overrides": [
 		{
