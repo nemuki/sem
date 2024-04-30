@@ -1,17 +1,17 @@
 import { env } from './env.ts'
 
-const slackOAuthAuthorizeUrl = new URL('https://slack.com/oauth/v2/authorize')
-slackOAuthAuthorizeUrl.searchParams.append('client_id', env.SLACK_CLIENT_ID)
-slackOAuthAuthorizeUrl.searchParams.append('scope', '')
-slackOAuthAuthorizeUrl.searchParams.append(
+const slackOauthAuthorizeUrl = new URL('https://slack.com/oauth/v2/authorize')
+slackOauthAuthorizeUrl.searchParams.append('client_id', env.SLACK_CLIENT_ID)
+slackOauthAuthorizeUrl.searchParams.append('scope', '')
+slackOauthAuthorizeUrl.searchParams.append(
   'redirect_uri',
   env.SLACK_REDIRECT_URI,
 )
-slackOAuthAuthorizeUrl.searchParams.append(
+slackOauthAuthorizeUrl.searchParams.append(
   'user_scope',
   'channels:history,channels:read,users.profile:read,users.profile:write,chat:write',
 )
 
 export const applicationConstants = {
-  slackOAuthAuthorizeUrl: slackOAuthAuthorizeUrl.toString(),
+  slackOauthAuthorizeUrl: slackOauthAuthorizeUrl.toString(),
 } as const

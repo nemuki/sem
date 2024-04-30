@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
+  chatPostMessage,
   fetchConversationsHistory,
   fetchConversationsInfo,
 } from './slackApi.ts'
@@ -35,7 +36,8 @@ function App() {
     ConversationsInfoResponse | undefined
   >(undefined)
 
-  const form = useForm<{ channelId: string }>()
+  const form = useForm<{ channelId: string }>({ mode: 'uncontrolled' })
+  const form2 = useForm<{ message: string }>({ mode: 'uncontrolled' })
 
   const getConversationsHistory = async (channelId: string) => {
     if (slackOauthToken.accessToken) {
@@ -80,6 +82,13 @@ function App() {
     getConversationsHistory(values.channelId)
   }
 
+  const handleSubmit2 = (values: typeof form2.values) => {
+    const channelId = form.getValues().channelId
+    if (slackOauthToken.accessToken) {
+      chatPostMessage(slackOauthToken.accessToken, channelId, values.message)
+    }
+  }
+
   useEffect(() => {
     getConversationsHistory('')
   }, [])
@@ -89,7 +98,7 @@ function App() {
       <Container>
         <Button
           component={'a'}
-          href={applicationConstants.slackOAuthAuthorizeUrl}
+          href={applicationConstants.slackOauthAuthorizeUrl}
         >
           Login with Slack
         </Button>
@@ -133,6 +142,13 @@ function App() {
           label="Channel ID"
           key={form.key('channelId')}
           {...form.getInputProps('channelId')}
+        />
+      </form>
+      <form onSubmit={form2.onSubmit(handleSubmit2)}>
+        <TextInput
+          label="Message"
+          key={form2.key('message')}
+          {...form2.getInputProps('message')}
         />
       </form>
       <Text>
