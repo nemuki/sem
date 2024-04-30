@@ -93,3 +93,45 @@ export const fetchConversationsInfo = async (
 
   return response.json()
 }
+
+export const chatPostMessage = async (
+  accessToken: string,
+  channelId: string,
+  message: string,
+  threadTs?: string,
+): Promise<Response> => {
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'plain_text',
+        text: message,
+        emoji: true,
+      },
+    },
+    {
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: 'Posted by Slack Emoji Message App',
+        },
+      ],
+    },
+  ]
+
+  const formData = new FormData()
+  formData.append('token', accessToken)
+  formData.append('channel', channelId)
+  formData.append('blocks', JSON.stringify(blocks))
+  formData.append('unfurl_media', 'false')
+
+  if (threadTs) {
+    formData.append('thread_ts', threadTs)
+  }
+
+  return fetch(`${slackApiBaseUrl}/chat.postMessage`, {
+    method: 'POST',
+    body: formData,
+  })
+}
