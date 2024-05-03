@@ -10,7 +10,9 @@ type SlackOauthToken = {
 }
 
 export const useAuth = () => {
-  const [error, setError] = useState<string | undefined>(undefined)
+  const [authErrorMessage, setAuthErrorMessage] = useState<string | undefined>(
+    undefined,
+  )
   const [userProfile, setUserProfile] = useState<
     UsersProfileGetResponse | undefined
   >(undefined)
@@ -43,7 +45,7 @@ export const useAuth = () => {
     message: string,
     error: string | undefined | unknown,
   ) => {
-    setError(`${message} ${error}`)
+    setAuthErrorMessage(`${message} ${error}`)
     console.error({ message, error })
   }
 
@@ -91,7 +93,7 @@ export const useAuth = () => {
       )
 
       if (!response.ok) {
-        setError(`${errorMessage} ${response.error}`)
+        setAuthErrorMessage(`${errorMessage} ${response.error}`)
         return
       }
 
@@ -196,7 +198,7 @@ export const useAuth = () => {
   return {
     slackOauthToken: localStorageSlackOauthToken,
     userProfile,
-    error,
+    authErrorMessage,
     handleLogout,
     handleRemoveValue,
   }

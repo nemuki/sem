@@ -17,7 +17,7 @@ function App() {
   const {
     slackOauthToken,
     userProfile,
-    error,
+    authErrorMessage,
     handleLogout,
     handleRemoveValue,
   } = useAuth()
@@ -89,7 +89,7 @@ function App() {
     }
   }
 
-  if (error) {
+  if (authErrorMessage) {
     return (
       <Container>
         <Button
@@ -100,7 +100,7 @@ function App() {
           ログイン情報を削除
         </Button>
         <Text c={'red'} fw={500}>
-          {error}
+          {authErrorMessage}
         </Text>
       </Container>
     )
