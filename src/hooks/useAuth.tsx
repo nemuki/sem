@@ -36,7 +36,11 @@ export const useAuth = () => {
   const millisecondsInSecond = 1000
   const currentTimestamp = Date.now() / millisecondsInSecond
 
+  /**
+   * 初回アクセス時の処理
+   */
   useEffect(() => {
+    // ログイン情報がない場合は何もしない
     if (
       oauthAuthorizationCode === null &&
       !localStorageSlackOauthToken.accessToken
@@ -64,14 +68,20 @@ export const useAuth = () => {
     setAuthIsLoading(false)
   }
 
-  const handleRemoveValue = () => {
+  /**
+   * LocalStorage の Slack OAuth トークンを削除する
+   */
+  const handleRemoveLocalStorageSlackOauthToken = () => {
     removeLocalStorageSlackOauthToken()
     window.location.reload()
   }
 
+  /**
+   * ログアウト処理
+   */
   const handleLogout = async () => {
     if (!localStorageSlackOauthToken.accessToken) {
-      handleRemoveValue()
+      handleRemoveLocalStorageSlackOauthToken()
       return
     }
 
@@ -91,9 +101,12 @@ export const useAuth = () => {
       return
     }
 
-    handleRemoveValue()
+    handleRemoveLocalStorageSlackOauthToken()
   }
 
+  /**
+   * アクセストークンを取得する
+   */
   const getAuthorizationToken = async () => {
     if (!oauthAuthorizationCode) {
       return
@@ -148,6 +161,9 @@ export const useAuth = () => {
     }
   }
 
+  /**
+   * リフレッシュトークンを取得する
+   */
   const getRefreshToken = async () => {
     const { refreshToken, expiresAt } = localStorageSlackOauthToken
 
@@ -187,6 +203,9 @@ export const useAuth = () => {
     }
   }
 
+  /**
+   * ユーザ情報を取得する
+   */
   const getUserInfo = async () => {
     if (!localStorageSlackOauthToken.accessToken) {
       return
@@ -216,6 +235,6 @@ export const useAuth = () => {
     slackOauthToken: localStorageSlackOauthToken,
     userProfile,
     handleLogout,
-    handleRemoveValue,
+    handleRemoveLocalStorageSlackOauthToken,
   }
 }
