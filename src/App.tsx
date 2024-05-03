@@ -1,9 +1,11 @@
 import {
+  Avatar,
   Button,
   Code,
   Container,
   Group,
   Loader,
+  Stack,
   Text,
   TextInput,
 } from '@mantine/core'
@@ -142,15 +144,20 @@ function App() {
 
   return (
     <Container>
-      <Text>{userProfile?.profile?.real_name} でログイン中</Text>
-      <Button
-        onClick={() => {
-          handleLogout()
-        }}
-        w={'fit-content'}
-      >
-        ログアウト
-      </Button>
+      <Stack>
+        <Group>
+          <Avatar src={userProfile?.profile?.image_192} />
+          <Text>{userProfile?.profile?.real_name} でログイン中</Text>
+        </Group>
+        <Button
+          onClick={() => {
+            handleLogout()
+          }}
+          w={'fit-content'}
+        >
+          ログアウト
+        </Button>
+      </Stack>
       <Text>User profile</Text>
       <Code block>{JSON.stringify(userProfile.profile, undefined, 2)}</Code>
       <form onSubmit={form.onSubmit(handleSubmit)}>
