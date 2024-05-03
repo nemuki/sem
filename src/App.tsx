@@ -4,7 +4,7 @@ import {
   ConversationsHistoryResponse,
   ConversationsInfoResponse,
 } from '@slack/web-api'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
@@ -89,24 +89,6 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    getConversationsHistory('')
-  }, [])
-
-  if (!slackOauthToken || !userProfile) {
-    return (
-      <Container>
-        <Button
-          component={'a'}
-          href={applicationConstants.slackOauthAuthorizeUrl}
-        >
-          Login with Slack
-        </Button>
-        <Code block>Not logged in</Code>
-      </Container>
-    )
-  }
-
   if (error) {
     return (
       <Container>
@@ -120,6 +102,20 @@ function App() {
         <Text c={'red'} fw={500}>
           {error}
         </Text>
+      </Container>
+    )
+  }
+
+  if (!slackOauthToken || !userProfile) {
+    return (
+      <Container>
+        <Button
+          component={'a'}
+          href={applicationConstants.slackOauthAuthorizeUrl}
+        >
+          Login with Slack
+        </Button>
+        <Code block>Not logged in</Code>
       </Container>
     )
   }
