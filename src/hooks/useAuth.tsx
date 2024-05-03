@@ -190,7 +190,6 @@ export const useAuth = () => {
       setUserProfile(response)
     } catch (error) {
       handleSetError(errorMessage, error)
-      console.error(error)
     }
   }
 
