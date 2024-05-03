@@ -10,6 +10,7 @@ type SlackOauthToken = {
 }
 
 export const useAuth = () => {
+  const [authIsLoading, setAuthIsLoading] = useState<boolean>(true)
   const [authErrorMessage, setAuthErrorMessage] = useState<string | undefined>(
     undefined,
   )
@@ -39,6 +40,7 @@ export const useAuth = () => {
       getRefreshToken()
       getUserInfo()
     }
+    setAuthIsLoading(false)
   }, [oauthAuthorizationCode])
 
   const handleSetError = (
@@ -47,6 +49,7 @@ export const useAuth = () => {
   ) => {
     setAuthErrorMessage(`${message} ${error}`)
     console.error({ message, error })
+    setAuthIsLoading(false)
   }
 
   const handleRemoveValue = () => {
@@ -196,9 +199,10 @@ export const useAuth = () => {
   }
 
   return {
+    authIsLoading,
+    authErrorMessage,
     slackOauthToken: localStorageSlackOauthToken,
     userProfile,
-    authErrorMessage,
     handleLogout,
     handleRemoveValue,
   }

@@ -1,4 +1,12 @@
-import { Button, Code, Container, Text, TextInput } from '@mantine/core'
+import {
+  Button,
+  Code,
+  Container,
+  Group,
+  Loader,
+  Text,
+  TextInput,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import {
   ConversationsHistoryResponse,
@@ -15,9 +23,10 @@ import {
 
 function App() {
   const {
+    authIsLoading,
+    authErrorMessage,
     slackOauthToken,
     userProfile,
-    authErrorMessage,
     handleLogout,
     handleRemoveValue,
   } = useAuth()
@@ -89,6 +98,17 @@ function App() {
     }
   }
 
+  if (authIsLoading || !userProfile) {
+    return (
+      <Container>
+        <Group>
+          <Loader />
+          <Text>Authenticating...</Text>
+        </Group>
+      </Container>
+    )
+  }
+
   if (authErrorMessage) {
     return (
       <Container>
@@ -106,7 +126,7 @@ function App() {
     )
   }
 
-  if (!slackOauthToken || !userProfile) {
+  if (!slackOauthToken) {
     return (
       <Container>
         <Button
@@ -122,7 +142,7 @@ function App() {
 
   return (
     <Container>
-      <Text>{userProfile.profile?.real_name} でログイン中</Text>
+      <Text>{userProfile?.profile?.real_name} でログイン中</Text>
       <Button
         onClick={() => {
           handleLogout()
