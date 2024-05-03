@@ -18,7 +18,7 @@ export const useAuth = () => {
   const [
     localStorageSlackOauthToken,
     setLocalStorageSlackOauthToken,
-    removeValue,
+    removeLocalStorageSlackOauthToken,
   ] = useLocalStorage<SlackOauthToken>({
     key: 'slackOAuthToken',
     defaultValue: readLocalStorageValue({
@@ -30,8 +30,25 @@ export const useAuth = () => {
   const urlSearchParams = new URLSearchParams(window.location.search)
   const oauthAuthorizationCode = urlSearchParams.get('code')
 
+  useEffect(() => {
+    if (oauthAuthorizationCode) {
+      getAuthorizationToken()
+    } else {
+      getRefreshToken()
+      getUserInfo()
+    }
+  }, [oauthAuthorizationCode])
+
+  const handleSetError = (
+    message: string,
+    error: string | undefined | unknown,
+  ) => {
+    setError(`${message} ${error}`)
+    console.error({ message, error })
+  }
+
   const handleRemoveValue = () => {
-    removeValue()
+    removeLocalStorageSlackOauthToken()
     window.location.reload()
   }
 
@@ -41,18 +58,19 @@ export const useAuth = () => {
       return
     }
 
+    const errorMessage = 'トークン削除処理でエラーが発生しました'
+
     try {
       const response = await revokeToken(
         localStorageSlackOauthToken.accessToken,
       )
 
       if (!response.ok) {
-        setError(`トークン削除処理でエラーが発生しました ${response.error}`)
+        handleSetError(errorMessage, response.error)
         return
       }
     } catch (error) {
-      setError(`トークン削除処理でエラーが発生しました ${error}`)
-      console.error(error)
+      handleSetError(errorMessage, error)
       return
     }
 
@@ -64,6 +82,8 @@ export const useAuth = () => {
       return
     }
 
+    const errorMessage = '認可コード取得処理でエラーが発生しました'
+
     try {
       const response = await fetchToken(
         'authorization_code',
@@ -71,22 +91,31 @@ export const useAuth = () => {
       )
 
       if (!response.ok) {
-        setError(`認可コード取得処理でエラーが発生しました ${response.error}`)
+        setError(`${errorMessage} ${response.error}`)
         return
       }
 
       if (!response.authed_user?.access_token) {
-        setError(`No access token in response`)
+        handleSetError(
+          errorMessage,
+          'access_token がレスポンスに含まれていません',
+        )
         return
       }
 
       if (!response.authed_user?.refresh_token) {
-        setError('No refresh token in response')
+        handleSetError(
+          errorMessage,
+          'refresh_token がレスポンスに含まれていません',
+        )
         return
       }
 
       if (!response.authed_user?.expires_in) {
-        setError('No expires in response')
+        handleSetError(
+          errorMessage,
+          'expires_in がレスポンスに含まれていません',
+        )
         return
       }
 
@@ -98,32 +127,30 @@ export const useAuth = () => {
 
       window.location.href = window.location.origin
     } catch (error) {
-      setError(`認可コード取得処理でエラーが発生しました ${error}`)
-      console.error(error)
+      handleSetError(errorMessage, error)
     }
   }
 
   const getRefreshToken = async () => {
-    const refreshToken = localStorageSlackOauthToken.refreshToken
-    const expiresAt = localStorageSlackOauthToken.expiresAt
+    const { refreshToken, expiresAt } = localStorageSlackOauthToken
 
     const millisecondsInSecond = 1000
     const currentTimestamp = Date.now() / millisecondsInSecond
     const isTokenExpired = expiresAt && expiresAt < currentTimestamp
 
-    console.info({ isExpired: isTokenExpired, expiresAt, currentTimestamp })
+    console.info({ isTokenExpired, expiresAt, currentTimestamp })
 
     if (!refreshToken || !isTokenExpired) {
       return
     }
 
+    const errorMessage = 'リフレッシュトークン取得処理でエラーが発生しました'
+
     try {
       const response = await fetchToken('refresh_token', refreshToken)
 
       if (!response.ok) {
-        setError(
-          `リフレッシュトークン取得処理でエラーが発生しました ${response.error}`,
-        )
+        handleSetError(errorMessage, response.error)
         return
       }
 
@@ -136,9 +163,10 @@ export const useAuth = () => {
         refreshToken: response.refresh_token,
         expiresAt: newExpiresAt,
       })
+
+      window.location.reload()
     } catch (error) {
-      setError(`リフレッシュトークン取得処理でエラーが発生しました ${error}`)
-      console.error(error)
+      handleSetError(errorMessage, error)
     }
   }
 
@@ -147,32 +175,24 @@ export const useAuth = () => {
       return
     }
 
+    const errorMessage = 'ユーザ情報取得処理でエラーが発生しました'
+
     try {
       const response = await fetchUserInfo(
         localStorageSlackOauthToken.accessToken,
       )
 
       if (!response.ok) {
-        setError(`ユーザ情報取得処理でエラーが発生しました ${response.error}`)
-        console.error(response.error)
+        handleSetError(errorMessage, response.error)
         return
       }
 
       setUserProfile(response)
     } catch (error) {
-      setError(`ユーザ情報取得処理でエラーが発生しました ${error}`)
+      handleSetError(errorMessage, error)
       console.error(error)
     }
   }
-
-  useEffect(() => {
-    if (oauthAuthorizationCode) {
-      getAuthorizationToken()
-    } else {
-      getRefreshToken()
-      getUserInfo()
-    }
-  }, [])
 
   return {
     slackOauthToken: localStorageSlackOauthToken,
