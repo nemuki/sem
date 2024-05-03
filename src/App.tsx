@@ -30,7 +30,7 @@ function App() {
     slackOauthToken,
     userProfile,
     handleLogout,
-    handleRemoveValue,
+    handleRemoveLocalStorageSlackOauthToken,
   } = useAuth()
 
   const [conversationsHistory, setConversationsHistory] = useState<
@@ -100,35 +100,7 @@ function App() {
     }
   }
 
-  if (authIsLoading || !userProfile) {
-    return (
-      <Container>
-        <Group>
-          <Loader />
-          <Text>Authenticating...</Text>
-        </Group>
-      </Container>
-    )
-  }
-
-  if (authErrorMessage) {
-    return (
-      <Container>
-        <Button
-          onClick={() => {
-            handleRemoveValue()
-          }}
-        >
-          ログイン情報を削除
-        </Button>
-        <Text c={'red'} fw={500}>
-          {authErrorMessage}
-        </Text>
-      </Container>
-    )
-  }
-
-  if (!slackOauthToken) {
+  if (Object.keys(slackOauthToken).length === 0) {
     return (
       <Container>
         <Button
@@ -142,12 +114,40 @@ function App() {
     )
   }
 
+  if (authErrorMessage) {
+    return (
+      <Container>
+        <Button
+          onClick={() => {
+            handleRemoveLocalStorageSlackOauthToken()
+          }}
+        >
+          ログイン情報を削除
+        </Button>
+        <Text c={'red'} fw={500}>
+          {authErrorMessage}
+        </Text>
+      </Container>
+    )
+  }
+
+  if (authIsLoading || !userProfile) {
+    return (
+      <Container>
+        <Group>
+          <Loader />
+          <Text>Authenticating...</Text>
+        </Group>
+      </Container>
+    )
+  }
+
   return (
     <Container>
       <Stack>
         <Group>
-          <Avatar src={userProfile?.profile?.image_192} />
-          <Text>{userProfile?.profile?.real_name} でログイン中</Text>
+          <Avatar src={userProfile.profile?.image_192} />
+          <Text>{userProfile.profile?.real_name} でログイン中</Text>
         </Group>
         <Button
           onClick={() => {
