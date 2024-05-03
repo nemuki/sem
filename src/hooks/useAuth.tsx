@@ -1,6 +1,6 @@
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
 import { UsersProfileGetResponse } from '@slack/web-api'
-import { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { fetchToken, fetchUserProfile, revokeToken } from '../slackApi.ts'
 
 type SlackOauthToken = {
@@ -9,7 +9,34 @@ type SlackOauthToken = {
   expiresAt?: number
 }
 
+type AuthContextProps = {
+  authIsLoading: boolean
+  authErrorMessage: string | undefined
+  slackOauthToken: SlackOauthToken
+  userProfile: UsersProfileGetResponse | undefined
+  handleLogout: () => void
+  handleRemoveLocalStorageSlackOauthToken: () => void
+}
+
+type AuthProviderProps = {
+  children: React.ReactNode
+}
+
+const AuthContext = React.createContext<AuthContextProps | undefined>(undefined)
+
 export const useAuth = () => {
+  const context = React.useContext(AuthContext)
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+
+  return context
+}
+
+export const AuthProvider: FC<AuthProviderProps> = (
+  props: AuthProviderProps,
+) => {
   const [authIsLoading, setAuthIsLoading] = useState<boolean>(true)
   const [authErrorMessage, setAuthErrorMessage] = useState<string | undefined>(
     undefined,
@@ -43,7 +70,7 @@ export const useAuth = () => {
     // ログイン情報がない場合は何もしない
     if (
       oauthAuthorizationCode === null &&
-      !localStorageSlackOauthToken.accessToken
+      Object.keys(localStorageSlackOauthToken).length === 0
     ) {
       setAuthIsLoading(false)
       return
@@ -229,7 +256,7 @@ export const useAuth = () => {
     }
   }
 
-  return {
+  const value = {
     authIsLoading,
     authErrorMessage,
     slackOauthToken: localStorageSlackOauthToken,
@@ -237,4 +264,8 @@ export const useAuth = () => {
     handleLogout,
     handleRemoveLocalStorageSlackOauthToken,
   }
+
+  return (
+    <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
+  )
 }
