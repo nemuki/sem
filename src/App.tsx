@@ -14,6 +14,7 @@ import {
   ConversationsHistoryResponse,
   ConversationsInfoResponse,
 } from '@slack/web-api'
+import { MessageElement } from '@slack/web-api/dist/types/response/ConversationsHistoryResponse'
 import { useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
@@ -37,18 +38,22 @@ function App() {
     ConversationsHistoryResponse | undefined
   >(undefined)
 
-  const filteredConversations = useMemo(() => {
-    return conversationsHistory?.messages
-      ?.filter((message) => message.type === 'message')
-      .filter((message) => message?.text?.includes('スレッド'))
-  }, [conversationsHistory])
-
   const [channelInfo, setChannelInfo] = useState<
     ConversationsInfoResponse | undefined
   >(undefined)
 
-  const form = useForm<{ channelId: string }>({ mode: 'uncontrolled' })
+  const form = useForm<{ channelId: string; searchMessage: string }>({
+    mode: 'uncontrolled',
+  })
   const form2 = useForm<{ message: string }>({ mode: 'uncontrolled' })
+
+  const filteredConversations = useMemo(() => {
+    return conversationsHistory?.messages
+      ?.filter((message) => message.type === 'message')
+      .filter((message) =>
+        message?.text?.includes(form.getValues().searchMessage),
+      )
+  }, [conversationsHistory])
 
   const getConversationsHistory = async (channelId: string) => {
     if (slackOauthToken.accessToken) {
@@ -90,7 +95,10 @@ function App() {
 
   const handleSubmit = (values: typeof form.values) => {
     getConversationsInfo(values.channelId)
-    getConversationsHistory(values.channelId)
+
+    if (values.searchMessage) {
+      getConversationsHistory(values.channelId)
+    }
   }
 
   const handleSubmit2 = (values: typeof form2.values) => {
@@ -145,47 +153,71 @@ function App() {
   return (
     <Container>
       <Stack>
-        <Group>
-          <Avatar src={userProfile.profile?.image_192} />
-          <Text>{userProfile.profile?.real_name} でログイン中</Text>
-        </Group>
-        <Button
-          onClick={() => {
-            handleLogout()
-          }}
-          w={'fit-content'}
-        >
-          ログアウト
-        </Button>
+        <Stack>
+          <Group>
+            <Avatar src={userProfile.profile?.image_192} />
+            <Text>{userProfile.profile?.real_name} でログイン中</Text>
+          </Group>
+          <Button
+            onClick={() => {
+              handleLogout()
+            }}
+            w={'fit-content'}
+          >
+            ログアウト
+          </Button>
+        </Stack>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack>
+            <TextInput
+              label="チャンネルID"
+              description="投稿するチャンネルのIDを入力してください"
+              key={form.key('channelId')}
+              {...form.getInputProps('channelId')}
+            />
+            <TextInput
+              label="メッセージ検索"
+              description="検索文言を含む、本日午前6時以降のメッセージを検索します ex.勤怠スレッド"
+              key={form.key('searchMessage')}
+              {...form.getInputProps('searchMessage')}
+            />
+            <Button type={'submit'} w={'fit-content'}>
+              検索
+            </Button>
+          </Stack>
+        </form>
+        <div>
+          <Text size={'sm'}>投稿するチャンネル名</Text>
+          <Text span fw={700}>
+            {channelInfo?.channel?.name}
+          </Text>
+        </div>
+        <div>
+          <Text size={'sm'}>返信するメッセージ</Text>
+          <Conversations conversations={filteredConversations} />
+        </div>
+        <form onSubmit={form2.onSubmit(handleSubmit2)}>
+          <TextInput
+            label="Message"
+            key={form2.key('message')}
+            {...form2.getInputProps('message')}
+          />
+        </form>
       </Stack>
-      <Text>User profile</Text>
-      <Code block>{JSON.stringify(userProfile.profile, undefined, 2)}</Code>
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <TextInput
-          label="Channel ID"
-          key={form.key('channelId')}
-          {...form.getInputProps('channelId')}
-        />
-      </form>
-      <form onSubmit={form2.onSubmit(handleSubmit2)}>
-        <TextInput
-          label="Message"
-          key={form2.key('message')}
-          {...form2.getInputProps('message')}
-        />
-      </form>
-      <Text>
-        チャンネル名:{' '}
-        <Text span fw={700}>
-          {channelInfo?.channel?.name}
-        </Text>
-      </Text>
-      <Text>Messages</Text>
-      <Code block>{JSON.stringify(filteredConversations, undefined, 2)}</Code>
-      <Text>Conversations</Text>
-      <Code block>{JSON.stringify(conversationsHistory, undefined, 2)}</Code>
     </Container>
   )
+}
+
+const Conversations = (props: { conversations?: MessageElement[] }) => {
+  if (props.conversations === undefined) {
+    return <></>
+  }
+
+  if (props.conversations.length === 0) {
+    return <Text>メッセージが見つかりませんでした</Text>
+  }
+
+  return <Code block>{JSON.stringify(props.conversations, undefined, 2)}</Code>
 }
 
 export default App
