@@ -48,7 +48,7 @@ export const revokeToken = async (
   })
 }
 
-export const fetchUserInfo = async (
+export const fetchUserProfile = async (
   accessToken: string,
 ): Promise<UsersProfileGetResponse> => {
   const formData = new FormData()

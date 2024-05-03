@@ -1,7 +1,7 @@
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
 import { UsersProfileGetResponse } from '@slack/web-api'
 import { useEffect, useState } from 'react'
-import { fetchToken, fetchUserInfo, revokeToken } from '../slackApi.ts'
+import { fetchToken, fetchUserProfile, revokeToken } from '../slackApi.ts'
 
 type SlackOauthToken = {
   accessToken?: string
@@ -53,7 +53,7 @@ export const useAuth = () => {
       getAuthorizationToken()
     } else {
       getRefreshToken()
-      getUserInfo()
+      getUserProfile()
     }
 
     setAuthIsLoading(false)
@@ -206,7 +206,7 @@ export const useAuth = () => {
   /**
    * ユーザ情報を取得する
    */
-  const getUserInfo = async () => {
+  const getUserProfile = async () => {
     if (!localStorageSlackOauthToken.accessToken) {
       return
     }
@@ -214,7 +214,7 @@ export const useAuth = () => {
     const errorMessage = 'ユーザ情報取得処理でエラーが発生しました'
 
     try {
-      const response = await fetchUserInfo(
+      const response = await fetchUserProfile(
         localStorageSlackOauthToken.accessToken,
       )
 
