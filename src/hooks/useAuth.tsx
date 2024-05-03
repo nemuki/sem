@@ -34,12 +34,21 @@ export const useAuth = () => {
   const oauthAuthorizationCode = urlSearchParams.get('code')
 
   useEffect(() => {
+    if (
+      oauthAuthorizationCode === null &&
+      !localStorageSlackOauthToken.accessToken
+    ) {
+      setAuthIsLoading(false)
+      return
+    }
+
     if (oauthAuthorizationCode) {
       getAuthorizationToken()
     } else {
       getRefreshToken()
       getUserInfo()
     }
+
     setAuthIsLoading(false)
   }, [oauthAuthorizationCode])
 
@@ -139,13 +148,17 @@ export const useAuth = () => {
   const getRefreshToken = async () => {
     const { refreshToken, expiresAt } = localStorageSlackOauthToken
 
+    if (!refreshToken) {
+      return
+    }
+
     const millisecondsInSecond = 1000
     const currentTimestamp = Date.now() / millisecondsInSecond
     const isTokenExpired = expiresAt && expiresAt < currentTimestamp
 
     console.info({ isTokenExpired, expiresAt, currentTimestamp })
 
-    if (!refreshToken || !isTokenExpired) {
+    if (!isTokenExpired) {
       return
     }
 
