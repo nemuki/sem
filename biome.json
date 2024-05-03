@@ -18,6 +18,7 @@
       "**/lerna-debug.log*",
       "**/node_modules",
       "**/dist",
+      "dist",
       "**/dist-ssr",
       "**/*.local",
       ".vscode/*",
@@ -30,7 +31,9 @@
       "**/*.sw?"
     ]
   },
-  "organizeImports": { "enabled": true },
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -70,7 +73,10 @@
         "useValidForDirection": "error",
         "useYield": "error"
       },
-      "style": { "noNamespace": "error", "useAsConstAssertion": "error" },
+      "style": {
+        "noNamespace": "error",
+        "useAsConstAssertion": "error"
+      },
       "suspicious": {
         "noAsyncPromiseExecutor": "error",
         "noCatchAssign": "error",
