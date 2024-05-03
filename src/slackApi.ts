@@ -70,6 +70,12 @@ export const fetchConversationsHistory = async (
   formData.append('token', accessToken)
   formData.append('channel', channelId)
 
+  const todayAm6 = new Date()
+  todayAm6.setHours(6, 0, 0, 0)
+  const todayAm6UnixTime = Math.floor(todayAm6.getTime() / 1000)
+
+  formData.append('oldest', todayAm6UnixTime.toString())
+
   const response = await fetch(`${slackApiBaseUrl}/conversations.history`, {
     method: 'POST',
     body: formData,
