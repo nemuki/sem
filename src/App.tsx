@@ -11,6 +11,7 @@ import {
   TextInput,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
 import {
   ConversationsHistoryResponse,
   ConversationsInfoResponse,
@@ -20,10 +21,30 @@ import { useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
-  chatPostMessage,
   fetchConversationsHistory,
   fetchConversationsInfo,
 } from './slackApi.ts'
+
+type Message = {
+  attendance?: string
+  leave?: string
+}
+
+type AppSettings = {
+  message?: Message
+  status?: {
+    emoji: {
+      office?: string
+      telework?: string
+      leave?: string
+    }
+    text: {
+      office?: string
+      telework?: string
+      leave?: string
+    }
+  }
+}
 
 function App() {
   const {
@@ -34,6 +55,32 @@ function App() {
     handleLogout,
     handleRemoveLocalStorageSlackOauthToken,
   } = useAuth()
+
+  const [localStorageAppSettings, setLocalStorageAppSettings] =
+    useLocalStorage<AppSettings>({
+      key: 'appSettings',
+      defaultValue: readLocalStorageValue({
+        key: 'appSettings',
+        defaultValue: {
+          message: {
+            attendance: '業務開始します',
+            leave: '業務終了します',
+          },
+          status: {
+            emoji: {
+              office: '',
+              telework: '',
+              leave: '',
+            },
+            text: {
+              office: '',
+              telework: '',
+              leave: '',
+            },
+          },
+        },
+      }),
+    })
 
   const [conversationsHistory, setConversationsHistory] = useState<
     ConversationsHistoryResponse | undefined
@@ -46,7 +93,10 @@ function App() {
   const form = useForm<{ channelId: string; searchMessage: string }>({
     mode: 'uncontrolled',
   })
-  const form2 = useForm<{ message: string }>({ mode: 'uncontrolled' })
+  const form2 = useForm<Message>({
+    mode: 'uncontrolled',
+    initialValues: localStorageAppSettings.message,
+  })
 
   const filteredConversations = useMemo(() => {
     return conversationsHistory?.messages
@@ -103,10 +153,10 @@ function App() {
   }
 
   const handleSubmit2 = (values: typeof form2.values) => {
-    const channelId = form.getValues().channelId
-    if (slackOauthToken.accessToken) {
-      chatPostMessage(slackOauthToken.accessToken, channelId, values.message)
-    }
+    setLocalStorageAppSettings((prev) => ({
+      ...prev,
+      message: values,
+    }))
   }
 
   if (Object.keys(slackOauthToken).length === 0) {
@@ -202,15 +252,23 @@ function App() {
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
-          <Stack>
-            <form onSubmit={form2.onSubmit(handleSubmit2)}>
+          <form onSubmit={form2.onSubmit(handleSubmit2)}>
+            <Stack>
               <TextInput
-                label="Message"
-                key={form2.key('message')}
-                {...form2.getInputProps('message')}
+                label="出勤時のメッセージ"
+                key={form2.key('attendance')}
+                {...form2.getInputProps('attendance')}
               />
-            </form>
-          </Stack>
+              <TextInput
+                label="退勤時のメッセージ"
+                key={form2.key('leave')}
+                {...form2.getInputProps('leave')}
+              />
+              <Button type={'submit'} w={'fit-content'}>
+                保存
+              </Button>
+            </Stack>
+          </form>
         </Grid.Col>
       </Grid>
     </Container>
