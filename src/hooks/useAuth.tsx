@@ -33,6 +33,9 @@ export const useAuth = () => {
   const urlSearchParams = new URLSearchParams(window.location.search)
   const oauthAuthorizationCode = urlSearchParams.get('code')
 
+  const millisecondsInSecond = 1000
+  const currentTimestamp = Date.now() / millisecondsInSecond
+
   useEffect(() => {
     if (
       oauthAuthorizationCode === null &&
@@ -136,7 +139,7 @@ export const useAuth = () => {
       setLocalStorageSlackOauthToken({
         accessToken: response.authed_user.access_token,
         refreshToken: response.authed_user.refresh_token,
-        expiresAt: response.authed_user.expires_in,
+        expiresAt: currentTimestamp + response.authed_user.expires_in,
       })
 
       window.location.href = window.location.origin
@@ -152,8 +155,6 @@ export const useAuth = () => {
       return
     }
 
-    const millisecondsInSecond = 1000
-    const currentTimestamp = Date.now() / millisecondsInSecond
     const isTokenExpired = expiresAt && expiresAt < currentTimestamp
 
     console.info({ isTokenExpired, expiresAt, currentTimestamp })
@@ -172,14 +173,12 @@ export const useAuth = () => {
         return
       }
 
-      const newExpiresAt = response.expires_in
-        ? currentTimestamp + response.expires_in
-        : undefined
-
       setLocalStorageSlackOauthToken({
         accessToken: response.access_token,
         refreshToken: response.refresh_token,
-        expiresAt: newExpiresAt,
+        expiresAt: response.expires_in
+          ? currentTimestamp + response.expires_in
+          : undefined,
       })
 
       window.location.reload()
