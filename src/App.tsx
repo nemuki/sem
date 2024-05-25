@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  Checkbox,
   Code,
   Container,
   Grid,
@@ -68,12 +69,12 @@ function App() {
           },
           status: {
             emoji: {
-              office: '',
+              attendance: '',
               telework: '',
               leave: '',
             },
             text: {
-              office: '',
+              attendance: '',
               telework: '',
               leave: '',
             },
@@ -204,7 +205,7 @@ function App() {
   return (
     <Container>
       <Grid>
-        <Grid.Col span={6}>
+        <Grid.Col span={3}>
           <Stack>
             <Stack>
               <Group>
@@ -251,7 +252,7 @@ function App() {
             </div>
           </Stack>
         </Grid.Col>
-        <Grid.Col span={6}>
+        <Grid.Col span={'auto'}>
           <form onSubmit={form2.onSubmit(handleSubmit2)}>
             <Stack>
               <TextInput
@@ -264,11 +265,57 @@ function App() {
                 key={form2.key('leave')}
                 {...form2.getInputProps('leave')}
               />
+              <Group>
+                <TextInput
+                  label="出勤時のSlack絵文字"
+                  key={form2.key('status.emoji.attendance')}
+                  {...form2.getInputProps('status.emoji.attendance')}
+                />
+                <TextInput
+                  label="出勤時のSlack絵文字メッセージ"
+                  key={form2.key('status.text.attendance')}
+                  {...form2.getInputProps('status.emoji.attendance')}
+                />
+              </Group>
+              <Group>
+                <TextInput
+                  label="退勤時のSlack絵文字"
+                  key={form2.key('status.emoji.leave')}
+                  {...form2.getInputProps('status.emoji.leave')}
+                />
+                <TextInput
+                  label="退勤時のSlack絵文字メッセージ"
+                  key={form2.key('status.text.leave')}
+                  {...form2.getInputProps('status.text.leave')}
+                />
+              </Group>
+              <Group>
+                <TextInput
+                  label="テレワーク時のSlack絵文字"
+                  key={form2.key('status.emoji.telework')}
+                  {...form2.getInputProps('status.emoji.telework')}
+                />
+                <TextInput
+                  label="テレワーク時のSlack絵文字メッセージ"
+                  key={form2.key('status.text.telework')}
+                  {...form2.getInputProps('status.text.telework')}
+                />
+              </Group>
               <Button type={'submit'} w={'fit-content'}>
                 保存
               </Button>
             </Stack>
           </form>
+        </Grid.Col>
+        <Grid.Col span={3}>
+          <Stack>
+            <Checkbox
+              description={'デフォルトはテレワーク'}
+              label={'出社時はチェック'}
+            ></Checkbox>
+            <Button>出勤</Button>
+            <Button color={'pink'}>退勤</Button>
+          </Stack>
         </Grid.Col>
       </Grid>
     </Container>
