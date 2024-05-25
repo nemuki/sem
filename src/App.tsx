@@ -19,7 +19,7 @@ import {
   ConversationsInfoResponse,
 } from '@slack/web-api'
 import { MessageElement } from '@slack/web-api/dist/types/response/ConversationsHistoryResponse'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
@@ -36,6 +36,12 @@ type WorkStatus = {
   office?: string
   telework?: string
   leave?: string
+}
+
+type PunchInSettings = {
+  changeStatusEmoji: boolean
+  attendance: boolean
+  additionalMessage: string
 }
 
 type AppSettings = {
@@ -97,6 +103,14 @@ function App() {
     mode: 'uncontrolled',
     initialValues: localStorageAppSettings,
   })
+  const form3 = useForm<PunchInSettings>({
+    mode: 'uncontrolled',
+    initialValues: {
+      changeStatusEmoji: false,
+      attendance: false,
+      additionalMessage: '',
+    },
+  })
 
   const filteredConversations = useMemo(() => {
     return conversationsHistory?.messages
@@ -149,14 +163,6 @@ function App() {
 
     if (values.searchMessage) {
       getConversationsHistory(values.channelId)
-
-      setLocalStorageAppSettings((prev) => ({
-        ...prev,
-        conversations: {
-          channelId: values.channelId,
-          searchMessage: values.searchMessage,
-        },
-      }))
     }
   }
 
@@ -166,6 +172,12 @@ function App() {
       message: values,
     }))
   }
+
+  useEffect(() => {
+    if (form.values.channelId) {
+      handleSubmit(form.values)
+    }
+  }, [])
 
   if (Object.keys(slackOauthToken).length === 0) {
     return (
@@ -309,6 +321,10 @@ function App() {
         </Grid.Col>
         <Grid.Col span={6}>
           <Stack>
+            <Checkbox
+              description={''}
+              label={'ステータス絵文字を変更する'}
+            ></Checkbox>
             <Checkbox
               description={'デフォルトはテレワーク'}
               label={'出社時はチェック'}
