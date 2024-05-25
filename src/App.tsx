@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
@@ -26,24 +27,22 @@ import {
   fetchConversationsInfo,
 } from './slackApi.ts'
 
-type Message = {
-  attendance?: string
+type Conversations = {
+  channelId: string
+  searchMessage: string
+}
+
+type WorkStatus = {
+  office?: string
+  telework?: string
   leave?: string
 }
 
 type AppSettings = {
-  message?: Message
+  conversations: Conversations
   status?: {
-    emoji: {
-      office?: string
-      telework?: string
-      leave?: string
-    }
-    text: {
-      office?: string
-      telework?: string
-      leave?: string
-    }
+    emoji: WorkStatus
+    text: WorkStatus
   }
 }
 
@@ -63,20 +62,20 @@ function App() {
       defaultValue: readLocalStorageValue({
         key: 'appSettings',
         defaultValue: {
-          message: {
-            attendance: '業務開始します',
-            leave: '業務終了します',
+          conversations: {
+            channelId: '',
+            searchMessage: '',
           },
           status: {
             emoji: {
-              attendance: '',
-              telework: '',
-              leave: '',
+              attendance: ':office:',
+              telework: ':house_with_garden:',
+              leave: ':soon:',
             },
             text: {
-              attendance: '',
-              telework: '',
-              leave: '',
+              attendance: '出社しています',
+              telework: 'テレワーク',
+              leave: '退勤しています',
             },
           },
         },
@@ -86,17 +85,17 @@ function App() {
   const [conversationsHistory, setConversationsHistory] = useState<
     ConversationsHistoryResponse | undefined
   >(undefined)
-
-  const [channelInfo, setChannelInfo] = useState<
+  const [conversationsInfo, setConversationsInfo] = useState<
     ConversationsInfoResponse | undefined
   >(undefined)
 
-  const form = useForm<{ channelId: string; searchMessage: string }>({
+  const form = useForm<Conversations>({
     mode: 'uncontrolled',
+    initialValues: localStorageAppSettings.conversations,
   })
-  const form2 = useForm<Message>({
+  const form2 = useForm<AppSettings>({
     mode: 'uncontrolled',
-    initialValues: localStorageAppSettings.message,
+    initialValues: localStorageAppSettings,
   })
 
   const filteredConversations = useMemo(() => {
@@ -138,7 +137,7 @@ function App() {
           console.error(response.error)
         }
 
-        setChannelInfo(response)
+        setConversationsInfo(response)
       } catch (error) {
         console.error(error)
       }
@@ -150,6 +149,14 @@ function App() {
 
     if (values.searchMessage) {
       getConversationsHistory(values.channelId)
+
+      setLocalStorageAppSettings((prev) => ({
+        ...prev,
+        conversations: {
+          channelId: values.channelId,
+          searchMessage: values.searchMessage,
+        },
+      }))
     }
   }
 
@@ -205,7 +212,7 @@ function App() {
   return (
     <Container>
       <Grid>
-        <Grid.Col span={3}>
+        <Grid.Col span={6}>
           <Stack>
             <Stack>
               <Group>
@@ -243,77 +250,71 @@ function App() {
             <div>
               <Text size={'sm'}>投稿するチャンネル名</Text>
               <Text span fw={700}>
-                {channelInfo?.channel?.name}
+                {conversationsInfo?.channel?.name}
               </Text>
             </div>
             <div>
               <Text size={'sm'}>返信するメッセージ</Text>
               <Conversations conversations={filteredConversations} />
             </div>
+            <div>
+              <form onSubmit={form2.onSubmit(handleSubmit2)}>
+                <Stack>
+                  <Title order={2} size={'sm'}>
+                    絵文字設定
+                  </Title>
+                  <Group>
+                    <TextInput
+                      label="出社時のSlack絵文字"
+                      key={form2.key('status.emoji.attendance')}
+                      {...form2.getInputProps('status.emoji.attendance')}
+                    />
+                    <TextInput
+                      label="出社時のSlack絵文字メッセージ"
+                      key={form2.key('status.text.attendance')}
+                      {...form2.getInputProps('status.text.attendance')}
+                    />
+                  </Group>
+                  <Group>
+                    <TextInput
+                      label="退勤時のSlack絵文字"
+                      key={form2.key('status.emoji.leave')}
+                      {...form2.getInputProps('status.emoji.leave')}
+                    />
+                    <TextInput
+                      label="退勤時のSlack絵文字メッセージ"
+                      key={form2.key('status.text.leave')}
+                      {...form2.getInputProps('status.text.leave')}
+                    />
+                  </Group>
+                  <Group>
+                    <TextInput
+                      label="テレワーク時のSlack絵文字"
+                      key={form2.key('status.emoji.telework')}
+                      {...form2.getInputProps('status.emoji.telework')}
+                    />
+                    <TextInput
+                      label="テレワーク時のSlack絵文字メッセージ"
+                      key={form2.key('status.text.telework')}
+                      {...form2.getInputProps('status.text.telework')}
+                    />
+                  </Group>
+                  <Button type={'submit'} w={'fit-content'}>
+                    保存
+                  </Button>
+                </Stack>
+              </form>
+            </div>
           </Stack>
         </Grid.Col>
-        <Grid.Col span={'auto'}>
-          <form onSubmit={form2.onSubmit(handleSubmit2)}>
-            <Stack>
-              <TextInput
-                label="出勤時のメッセージ"
-                key={form2.key('attendance')}
-                {...form2.getInputProps('attendance')}
-              />
-              <TextInput
-                label="退勤時のメッセージ"
-                key={form2.key('leave')}
-                {...form2.getInputProps('leave')}
-              />
-              <Group>
-                <TextInput
-                  label="出勤時のSlack絵文字"
-                  key={form2.key('status.emoji.attendance')}
-                  {...form2.getInputProps('status.emoji.attendance')}
-                />
-                <TextInput
-                  label="出勤時のSlack絵文字メッセージ"
-                  key={form2.key('status.text.attendance')}
-                  {...form2.getInputProps('status.emoji.attendance')}
-                />
-              </Group>
-              <Group>
-                <TextInput
-                  label="退勤時のSlack絵文字"
-                  key={form2.key('status.emoji.leave')}
-                  {...form2.getInputProps('status.emoji.leave')}
-                />
-                <TextInput
-                  label="退勤時のSlack絵文字メッセージ"
-                  key={form2.key('status.text.leave')}
-                  {...form2.getInputProps('status.text.leave')}
-                />
-              </Group>
-              <Group>
-                <TextInput
-                  label="テレワーク時のSlack絵文字"
-                  key={form2.key('status.emoji.telework')}
-                  {...form2.getInputProps('status.emoji.telework')}
-                />
-                <TextInput
-                  label="テレワーク時のSlack絵文字メッセージ"
-                  key={form2.key('status.text.telework')}
-                  {...form2.getInputProps('status.text.telework')}
-                />
-              </Group>
-              <Button type={'submit'} w={'fit-content'}>
-                保存
-              </Button>
-            </Stack>
-          </form>
-        </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={6}>
           <Stack>
             <Checkbox
               description={'デフォルトはテレワーク'}
               label={'出社時はチェック'}
             ></Checkbox>
-            <Button>出勤</Button>
+            <TextInput label="追加メッセージ" />
+            <Button>出社</Button>
             <Button color={'pink'}>退勤</Button>
           </Stack>
         </Grid.Col>
