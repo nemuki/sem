@@ -338,42 +338,42 @@ function App() {
               <form onSubmit={form2.onSubmit(handleSubmit2)}>
                 <Stack>
                   <Title order={2} size={'sm'}>
-                    絵文字設定
+                    Slack絵文字設定
                   </Title>
-                  <Group>
+                  <Group grow>
                     <TextInput
-                      label="出社時のSlack絵文字"
+                      label="出社時の絵文字"
                       key={form2.key('status.emoji.attendance')}
                       {...form2.getInputProps('status.emoji.attendance')}
                     />
                     <TextInput
-                      label="出社時のSlack絵文字メッセージ"
+                      label="出社時の絵文字メッセージ"
                       key={form2.key('status.text.attendance')}
                       {...form2.getInputProps('status.text.attendance')}
                     />
                   </Group>
-                  <Group>
+                  <Group grow>
                     <TextInput
-                      label="退勤時のSlack絵文字"
-                      key={form2.key('status.emoji.leave')}
-                      {...form2.getInputProps('status.emoji.leave')}
-                    />
-                    <TextInput
-                      label="退勤時のSlack絵文字メッセージ"
-                      key={form2.key('status.text.leave')}
-                      {...form2.getInputProps('status.text.leave')}
-                    />
-                  </Group>
-                  <Group>
-                    <TextInput
-                      label="テレワーク時のSlack絵文字"
+                      label="テレワーク時の絵文字"
                       key={form2.key('status.emoji.telework')}
                       {...form2.getInputProps('status.emoji.telework')}
                     />
                     <TextInput
-                      label="テレワーク時のSlack絵文字メッセージ"
+                      label="テレワーク時の絵文字メッセージ"
                       key={form2.key('status.text.telework')}
                       {...form2.getInputProps('status.text.telework')}
+                    />
+                  </Group>
+                  <Group grow>
+                    <TextInput
+                      label="退勤時の絵文字"
+                      key={form2.key('status.emoji.leave')}
+                      {...form2.getInputProps('status.emoji.leave')}
+                    />
+                    <TextInput
+                      label="退勤時の絵文字メッセージ"
+                      key={form2.key('status.text.leave')}
+                      {...form2.getInputProps('status.text.leave')}
                     />
                   </Group>
                   <Button type={'submit'} w={'fit-content'}>
