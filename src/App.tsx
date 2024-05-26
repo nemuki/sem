@@ -23,6 +23,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { applicationConstants } from './constant.ts'
 import { useAuth } from './hooks/useAuth.tsx'
 import {
+  chatPostMessage,
   fetchConversationsHistory,
   fetchConversationsInfo,
 } from './slackApi.ts'
@@ -42,6 +43,7 @@ type PunchInSettings = {
   changeStatusEmoji: boolean
   attendance: boolean
   additionalMessage: string
+  punchIn?: 'start' | 'end'
 }
 
 type AppSettings = {
@@ -109,6 +111,7 @@ function App() {
       changeStatusEmoji: false,
       attendance: false,
       additionalMessage: '',
+      punchIn: undefined,
     },
   })
 
@@ -158,6 +161,35 @@ function App() {
     }
   }
 
+  const postMessage = async (channelId: string, message: string) => {
+    if (slackOauthToken.accessToken) {
+      try {
+        const response = await chatPostMessage(
+          slackOauthToken.accessToken,
+          channelId,
+          message,
+          conversationsHistory?.messages?.[0]?.ts,
+        )
+
+        if (!response.ok) {
+          console.error({ response })
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  const createPunchInStartMessage = (values: PunchInSettings) => {
+    const baseMessage = values.attendance ? '業務' : 'テレワーク'
+    return `${baseMessage}開始します\n${values.additionalMessage}`
+  }
+
+  const createPunchInEndMessage = (values: PunchInSettings) => {
+    const baseMessage = values.attendance ? '業務' : 'テレワーク'
+    return `${baseMessage}終了します\n${values.additionalMessage}`
+  }
+
   const handleSubmit = (values: typeof form.values) => {
     getConversationsInfo(values.channelId)
 
@@ -171,6 +203,39 @@ function App() {
       ...prev,
       message: values,
     }))
+  }
+
+  /**
+   * 出勤時の関数
+   *
+   * ステータス絵文字を変更する場合は、絵文字を変更する
+   * メッセージを追加する場合は、メッセージを追加する
+   * chatPostMessageを呼び出す
+   */
+  const handlePunchIn = (values: typeof form3.values) => {
+    if (values.punchIn === undefined) {
+      return
+    }
+
+    console.log(values)
+
+    if (values.punchIn === 'start') {
+      // 出社時の処理
+      if (values.changeStatusEmoji) {
+        // ステータス絵文字を変更する
+      }
+
+      // postMessageを呼び出す
+      postMessage(form.values.channelId, createPunchInStartMessage(values))
+    } else if (values.punchIn === 'end') {
+      // 退勤時の処理
+      if (values.changeStatusEmoji) {
+        // ステータス絵文字を変更する
+      }
+
+      // postMessageを呼び出す
+      postMessage(form.values.channelId, createPunchInEndMessage(values))
+    }
   }
 
   useEffect(() => {
@@ -320,19 +385,51 @@ function App() {
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
-          <Stack>
-            <Checkbox
-              description={''}
-              label={'ステータス絵文字を変更する'}
-            ></Checkbox>
-            <Checkbox
-              description={'デフォルトはテレワーク'}
-              label={'出社時はチェック'}
-            ></Checkbox>
-            <TextInput label="追加メッセージ" />
-            <Button>出社</Button>
-            <Button color={'pink'}>退勤</Button>
-          </Stack>
+          <form onSubmit={form3.onSubmit(handlePunchIn)}>
+            <Stack>
+              <Checkbox
+                description={''}
+                label={'ステータス絵文字を変更する'}
+                key={form3.key('changeStatusEmoji')}
+                {...form3.getInputProps('changeStatusEmoji')}
+              ></Checkbox>
+              <Checkbox
+                description={'デフォルトはテレワーク'}
+                label={'出社時はチェック'}
+                key={form3.key('attendance')}
+                {...form3.getInputProps('attendance')}
+              ></Checkbox>
+              <TextInput
+                label="追加メッセージ"
+                description={'追加のメッセージを入力できます'}
+                key={form3.key('additionalMessage')}
+                {...form3.getInputProps('additionalMessage')}
+              />
+              <Button
+                type={'submit'}
+                onClick={() =>
+                  form3.setValues((prev) => ({
+                    ...prev,
+                    punchIn: 'start',
+                  }))
+                }
+              >
+                出勤
+              </Button>
+              <Button
+                color={'pink'}
+                type={'submit'}
+                onClick={() => {
+                  form3.setValues((prev) => ({
+                    ...prev,
+                    punchIn: 'end',
+                  }))
+                }}
+              >
+                退勤
+              </Button>
+            </Stack>
+          </form>
         </Grid.Col>
       </Grid>
     </Container>

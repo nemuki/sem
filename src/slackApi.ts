@@ -106,30 +106,10 @@ export const chatPostMessage = async (
   message: string,
   threadTs?: string,
 ): Promise<Response> => {
-  const blocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'plain_text',
-        text: message,
-        emoji: true,
-      },
-    },
-    {
-      type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: 'Posted by Slack Emoji Message App',
-        },
-      ],
-    },
-  ]
-
   const formData = new FormData()
   formData.append('token', accessToken)
   formData.append('channel', channelId)
-  formData.append('blocks', JSON.stringify(blocks))
+  formData.append('text', message)
   formData.append('unfurl_media', 'false')
 
   if (threadTs) {
