@@ -161,6 +161,14 @@ function App() {
     }
   }
 
+  const getConversations = (values: typeof form.values) => {
+    getConversationsInfo(values.channelId)
+
+    if (values.searchMessage) {
+      getConversationsHistory(values.channelId)
+    }
+  }
+
   const postMessage = async (channelId: string, message: string) => {
     if (slackOauthToken.accessToken) {
       try {
@@ -191,11 +199,12 @@ function App() {
   }
 
   const handleSubmit = (values: typeof form.values) => {
-    getConversationsInfo(values.channelId)
+    getConversations(values)
 
-    if (values.searchMessage) {
-      getConversationsHistory(values.channelId)
-    }
+    setLocalStorageAppSettings((prev) => ({
+      ...prev,
+      conversations: values,
+    }))
   }
 
   const handleSubmit2 = (values: typeof form2.values) => {
@@ -240,7 +249,7 @@ function App() {
 
   useEffect(() => {
     if (form.values.channelId) {
-      handleSubmit(form.values)
+      getConversations(form.values)
     }
   }, [])
 
