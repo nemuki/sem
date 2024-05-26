@@ -120,7 +120,7 @@ function App() {
       ?.filter((message) => message.type === 'message')
       .filter((message) =>
         message?.text?.includes(form.getValues().searchMessage),
-      )
+      )[0]
   }, [conversationsHistory])
 
   const getConversationsHistory = async (channelId: string) => {
@@ -436,16 +436,22 @@ function App() {
   )
 }
 
-const Conversations = (props: { conversations?: MessageElement[] }) => {
+const Conversations = (props: { conversations?: MessageElement }) => {
   if (props.conversations === undefined) {
-    return <></>
+    return (
+      <Text>メッセージが見つかりませんでした。チャンネルに投稿します。</Text>
+    )
   }
 
-  if (props.conversations.length === 0) {
-    return <Text>メッセージが見つかりませんでした</Text>
-  }
-
-  return <Code block>{JSON.stringify(props.conversations, undefined, 2)}</Code>
+  return (
+    <>
+      <Code block>{props.conversations.text}</Code>
+      <details>
+        <summary>メッセージを表示</summary>
+        <Code block>{JSON.stringify(props.conversations, undefined, 2)}</Code>
+      </details>
+    </>
+  )
 }
 
 export default App
