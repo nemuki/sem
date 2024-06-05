@@ -176,7 +176,7 @@ function App() {
           slackOauthToken.accessToken,
           channelId,
           message,
-          conversationsHistory?.messages?.[0]?.ts,
+          filteredConversations?.ts,
         )
 
         if (!response.ok) {
