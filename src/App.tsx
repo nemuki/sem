@@ -1,6 +1,8 @@
 import {
   Avatar,
+  Box,
   Button,
+  Card,
   Checkbox,
   Code,
   Container,
@@ -107,7 +109,7 @@ function App() {
     initialValues: localStorageAppSettings,
   })
   const form3 = useForm<PunchInSettings>({
-    mode: 'uncontrolled',
+    mode: 'controlled',
     initialValues: {
       changeStatusEmoji: false,
       attendance: false,
@@ -443,6 +445,16 @@ function App() {
                   退勤
                 </Button>
               </Group>
+              <Title order={2} size={'sm'}>
+                送信メッセージプレビュー
+              </Title>
+              <Card withBorder>
+                {form3.values.attendance ? '業務' : 'テレワーク'} 開始 / 終了
+                します
+                <Text inherit style={{ whiteSpace: 'pre-wrap' }}>
+                  {form3.values.additionalMessage}
+                </Text>
+              </Card>
             </Stack>
           </form>
         </Grid.Col>
