@@ -227,7 +227,7 @@ function App() {
       return
     }
 
-    console.log(values)
+    const channelId = localStorageAppSettings.conversations.channelId
 
     if (values.punchIn === 'start') {
       // 出社時の処理
@@ -236,7 +236,7 @@ function App() {
       }
 
       // postMessageを呼び出す
-      postMessage(form.values.channelId, createPunchInStartMessage(values))
+      postMessage(channelId, createPunchInStartMessage(values))
     } else if (values.punchIn === 'end') {
       // 退勤時の処理
       if (values.changeStatusEmoji) {
@@ -244,7 +244,7 @@ function App() {
       }
 
       // postMessageを呼び出す
-      postMessage(form.values.channelId, createPunchInEndMessage(values))
+      postMessage(channelId, createPunchInEndMessage(values))
     }
   }
 
