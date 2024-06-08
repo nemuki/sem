@@ -326,8 +326,12 @@ function App() {
                   {...form.getInputProps('channelId')}
                 />
                 <TextInput
-                  label="メッセージ検索"
-                  description="検索文言を含む、本日午前6時以降のメッセージを検索します ex.勤怠スレッド"
+                  label="スレッド検索"
+                  description="検索文言を含む 当日午前6時以降 のメッセージを部分一致で検索します
+指定しない場合はチャンネルに投稿します
+例: 勤怠スレッド"
+                  placeholder="勤怠スレッド"
+                  styles={{ description: { whiteSpace: 'pre-wrap' } }}
                   key={form.key('searchMessage')}
                   {...form.getInputProps('searchMessage')}
                 />
