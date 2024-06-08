@@ -340,17 +340,17 @@ function App() {
                 </Button>
               </Stack>
             </form>
-            <div>
+            <Box>
               <Text size={'sm'}>投稿するチャンネル名</Text>
               <Text span fw={700}>
                 {conversationsInfo?.channel?.name}
               </Text>
-            </div>
-            <div>
-              <Text size={'sm'}>返信するメッセージ</Text>
+            </Box>
+            <Box>
+              <Text size={'sm'}>返信するスレッド</Text>
               <Conversations conversations={filteredConversations} />
-            </div>
-            <div>
+            </Box>
+            <Box>
               <form onSubmit={form2.onSubmit(handleSubmit2)}>
                 <Stack>
                   <Title order={2} size={'sm'}>
@@ -397,7 +397,7 @@ function App() {
                   </Button>
                 </Stack>
               </form>
-            </div>
+            </Box>
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
@@ -470,7 +470,10 @@ function App() {
 const Conversations = (props: { conversations?: MessageElement }) => {
   if (props.conversations === undefined) {
     return (
-      <Text>メッセージが見つかりませんでした。チャンネルに投稿します。</Text>
+      <Box>
+        <Text>スレッドが見つかりませんでした。</Text>
+        <Text>チャンネルに投稿します。</Text>
+      </Box>
     )
   }
 
