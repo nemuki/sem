@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Textarea,
   Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -408,7 +409,10 @@ function App() {
                 key={form3.key('attendance')}
                 {...form3.getInputProps('attendance')}
               ></Checkbox>
-              <TextInput
+              <Textarea
+                minRows={2}
+                maxRows={5}
+                autosize
                 label="追加メッセージ"
                 description={'追加のメッセージを入力できます'}
                 key={form3.key('additionalMessage')}
