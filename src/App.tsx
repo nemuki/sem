@@ -418,29 +418,31 @@ function App() {
                 key={form3.key('additionalMessage')}
                 {...form3.getInputProps('additionalMessage')}
               />
-              <Button
-                type={'submit'}
-                onClick={() =>
-                  form3.setValues((prev) => ({
-                    ...prev,
-                    punchIn: 'start',
-                  }))
-                }
-              >
-                出勤
-              </Button>
-              <Button
-                color={'pink'}
-                type={'submit'}
-                onClick={() => {
-                  form3.setValues((prev) => ({
-                    ...prev,
-                    punchIn: 'end',
-                  }))
-                }}
-              >
-                退勤
-              </Button>
+              <Group grow>
+                <Button
+                  type={'submit'}
+                  onClick={() =>
+                    form3.setValues((prev) => ({
+                      ...prev,
+                      punchIn: 'start',
+                    }))
+                  }
+                >
+                  出勤
+                </Button>
+                <Button
+                  color={'pink'}
+                  type={'submit'}
+                  onClick={() => {
+                    form3.setValues((prev) => ({
+                      ...prev,
+                      punchIn: 'end',
+                    }))
+                  }}
+                >
+                  退勤
+                </Button>
+              </Group>
             </Stack>
           </form>
         </Grid.Col>
