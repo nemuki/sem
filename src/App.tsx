@@ -17,6 +17,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
 import {
   ConversationsHistoryResponse,
   ConversationsInfoResponse,
@@ -182,11 +183,28 @@ function App() {
           filteredConversations?.ts,
         )
 
-        if (!response.ok) {
-          console.error({ response })
+        if (response.ok) {
+          console.info(response)
+          notifications.show({
+            title: 'メッセージ送信完了',
+            message: message,
+            color: 'teal',
+          })
+        } else {
+          console.error(response)
+          notifications.show({
+            title: 'メッセージ送信エラー',
+            message: 'Slack メッセージ送信時にエラーが発生しました',
+            color: 'red',
+          })
         }
       } catch (error) {
         console.error(error)
+        notifications.show({
+          title: 'メッセージ送信エラー',
+          message: 'Slack メッセージ送信時にエラーが発生しました',
+          color: 'red',
+        })
       }
     }
   }
