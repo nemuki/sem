@@ -209,13 +209,16 @@ function App() {
     }
   }
 
+  const getWorkStatus = (attendance: boolean): string =>
+    attendance ? '業務' : 'テレワーク'
+
   const createPunchInStartMessage = (values: PunchInSettings) => {
-    const baseMessage = values.attendance ? '業務' : 'テレワーク'
+    const baseMessage = getWorkStatus(values.attendance)
     return `${baseMessage}開始します\n${values.additionalMessage}`
   }
 
   const createPunchInEndMessage = (values: PunchInSettings) => {
-    const baseMessage = values.attendance ? '業務' : 'テレワーク'
+    const baseMessage = getWorkStatus(values.attendance)
     return `${baseMessage}終了します\n${values.additionalMessage}`
   }
 
@@ -434,9 +437,6 @@ function App() {
                 {...form3.getInputProps('attendance')}
               ></Checkbox>
               <Textarea
-                minRows={2}
-                maxRows={5}
-                autosize
                 label="追加メッセージ"
                 description={'追加のメッセージを入力できます'}
                 key={form3.key('additionalMessage')}
@@ -471,8 +471,10 @@ function App() {
                 送信メッセージプレビュー
               </Title>
               <Card withBorder>
-                {form3.values.attendance ? '業務' : 'テレワーク'} 開始 / 終了
-                します
+                <Text>
+                  {getWorkStatus(form3.values.attendance)}
+                  開始 / 終了します
+                </Text>
                 <Text inherit style={{ whiteSpace: 'pre-wrap' }}>
                   {form3.values.additionalMessage}
                 </Text>
